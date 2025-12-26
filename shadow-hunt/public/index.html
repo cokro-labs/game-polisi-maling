@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SHADOW HUNT</title>
+  <link rel="stylesheet" href="css/base.css" />
+  
+  <style>
+    body {
+      overflow: hidden;
+      background-color: #050505;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    #bg-animation {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    .menu-container {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      backdrop-filter: blur(2px);
+    }
+
+    h1.title {
+      font-size: clamp(40px, 8vw, 80px); /* Responsif */
+      line-height: 1;
+      margin-bottom: 10px;
+      text-align: center;
+      text-transform: uppercase;
+      text-shadow: 4px 4px 0px #000;
+      background: linear-gradient(to right, #4da6ff, #4dff88);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .subtitle {
+      color: #fff;
+      letter-spacing: 4px;
+      margin-bottom: 40px;
+      opacity: 0.8;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .action-card {
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid #333;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      width: 90%;
+      max-width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input.room-input {
+      background: #111;
+      border: 2px solid #333;
+      color: #4dff88;
+      font-family: monospace;
+      font-size: 24px;
+      text-align: center;
+      padding: 15px;
+      border-radius: 6px;
+      outline: none;
+      letter-spacing: 5px;
+      width: 100%;
+      box-sizing: border-box; /* Agar padding tidak merusak lebar */
+    }
+
+    input.room-input:focus {
+      border-color: #4dff88;
+      box-shadow: 0 0 10px rgba(77, 255, 136, 0.2);
+    }
+
+    /* Hilangkan spinner number input */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none; margin: 0;
+    }
+
+    .btn {
+      border: none;
+      padding: 15px;
+      font-family: monospace;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 6px;
+      text-transform: uppercase;
+      width: 100%;
+    }
+
+    .btn-create {
+      background: #0044cc; color: white;
+      box-shadow: 0 4px 0 #002a80;
+    }
+    .btn-create:active { transform: translateY(4px); box-shadow: none; }
+    
+    .btn-join {
+      background: #00cc66; color: #003319;
+      box-shadow: 0 4px 0 #008040;
+    }
+    .btn-join:active { transform: translateY(4px); box-shadow: none; }
+
+    .divider {
+      text-align: center; color: #555; font-size: 12px; margin: 5px 0; position: relative;
+    }
+    .divider::before, .divider::after {
+      content: ""; position: absolute; top: 50%; width: 35%; height: 1px; background: #333;
+    }
+    .divider::before { left: 0; }
+    .divider::after { right: 0; }
+
+    .credit { margin-top: 30px; font-size: 10px; color: #444; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="bg-animation"></canvas>
+
+  <div class="menu-container">
+    <h1 class="title">SHADOW<br>HUNT</h1>
+    <div class="subtitle">MULTIPLAYER STEALTH ACTION</div>
+
+    <div class="action-card">
+      <button id="createBtn" class="btn btn-create">
+        👮 HOST GAME (GUARDIAN)
+      </button>
+
+      <div class="divider">OR</div>
+
+      <input type="number" id="roomInput" class="room-input" placeholder="CODE" autocomplete="off" />
+      <button id="joinBtn" class="btn btn-join">
+        🦹 JOIN GAME (SHADOW)
+      </button>
+
+      <div class="divider" style="margin-top:10px;">TESTING</div>
+      <button id="offlineBtn" class="btn" style="background:#333; color:#fff; font-size:12px; padding:10px;">
+        🤖 PRACTICE OFFLINE
+      </button>
+    </div>
+
+    <div class="credit">© COKRO LABS PROTOTYPE v1.0</div>
+  </div>
+
+  <script>
+    (function () {
+      // 1. MENU LOGIC
+      function generateRoomId() {
+        return Math.floor(1000 + Math.random() * 9000).toString();
+      }
+
+      document.getElementById('createBtn').addEventListener('click', () => {
+        const roomId = generateRoomId();
+        window.location.href = `game.html?room=${roomId}&role=host&mode=online`;
+      });
+
+      document.getElementById('joinBtn').addEventListener('click', () => {
+        const roomId = document.getElementById('roomInput').value;
+        if (!roomId || roomId.length < 4) {
+          alert("Enter a 4-digit room code!");
+          return;
+        }
+        window.location.href = `game.html?room=${roomId}&role=join&mode=online`;
+      });
+
+      // Tombol Offline (Penting untuk testing sendiri)
+      document.getElementById('offlineBtn').addEventListener('click', () => {
+        window.location.href = `game.html?mode=single`;
+      });
+
+      // 2. BACKGROUND ANIMATION
+      const canvas = document.getElementById('bg-animation');
+      const ctx = canvas.getContext('2d');
+      let width, height;
+      
+      const entities = [
+        { type: 'maling', x: -50, y: 0, speed: 3, size: 30, color: '#4dff88' },
+        { type: 'police', x: -200, y: 0, speed: 3.5, size: 30, color: '#4da6ff' }
+      ];
+
+      function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+        entities.forEach(e => e.y = height / 2);
+      }
+
+      function update() {
+        ctx.fillStyle = 'rgba(5, 5, 5, 0.3)';
+        ctx.fillRect(0, 0, width, height);
+
+        entities.forEach(e => {
+          e.x += e.speed;
+          if (e.x > width + 100) {
+            e.x = -100;
+            e.y = (height / 2) + (Math.random() * 100 - 50);
+          }
+
+          ctx.save();
+          if (e.type === 'police') {
+            // Simple Police visual
+            ctx.shadowBlur = 15; ctx.shadowColor = e.color;
+            ctx.fillStyle = e.color;
+            ctx.beginPath(); ctx.arc(e.x, e.y, e.size/2, 0, Math.PI*2); ctx.fill();
+            // Sirene
+            if (Math.floor(Date.now() / 100) % 2 === 0) {
+              ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+              ctx.beginPath(); ctx.arc(e.x, e.y, e.size, 0, Math.PI*2); ctx.fill();
+            }
+          } else {
+            // Simple Maling visual
+            ctx.shadowBlur = 10; ctx.shadowColor = e.color;
+            ctx.fillStyle = e.color;
+            ctx.fillRect(e.x - e.size/2, e.y - e.size/2, e.size, e.size);
+          }
+          ctx.restore();
+        });
+        requestAnimationFrame(update);
+      }
+
+      window.addEventListener('resize', resize);
+      resize();
+      update();
+    })();
+  </script>
+</body>
+</html>
